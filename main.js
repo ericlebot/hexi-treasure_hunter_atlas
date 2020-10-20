@@ -1,10 +1,6 @@
 let assets = [
     "sounds/chimes.wav",
-    "images/explorer.png",
-    "images/dungeon.png",
-    "images/blob.png",
-    "images/treasure.png",
-    "images/door.png"
+    "images/treasureHunter.json"
 ];
 
 let game = hexi(512, 512, setup, assets, load);
@@ -111,7 +107,7 @@ function play () {
 
     //If the player has brought the treasure to the exit,
     //end the game and display "You won!"
-    if (game.hitTestRectangle(treasure, exit)) {
+    if (treasure.pickedUp && game.hitTestRectangle(player, exit)) {
 
         game.state = end;
         message.content = "You won!";
@@ -136,22 +132,22 @@ function setup () {
     gameScene = game.group();
 
     // Create the dungeon background
-    dungeon = game.sprite("images/dungeon.png");
+    dungeon = game.sprite("dungeon.png");
     gameScene.addChild(dungeon);
 
     //Create the `exit` door sprite
-    exit = game.sprite("images/door.png");
+    exit = game.sprite("door.png");
     exit.x = 32;
     gameScene.addChild(exit);
 
     //Create the `player` sprite
-    player = game.sprite("images/explorer.png");
+    player = game.sprite("explorer.png");
     player.x = 68;
     player.y = game.canvas.height / 2 - player.halfHeight;
     gameScene.addChild(player);
 
     //Create the `treasure` sprite
-    treasure = game.sprite("images/treasure.png");
+    treasure = game.sprite("treasure.png");
     game.stage.putCenter(treasure, 200, 0);
     treasure.pickedUp = false;
     gameScene.addChild(treasure);
@@ -169,7 +165,7 @@ function setup () {
     for (let i = 0; i < numberOfEnemies; i++) {
 
         //Each enemy is a red rectangle
-        let enemy = game.sprite("images/blob.png");
+        let enemy = game.sprite("blob.png");
 
         //Space each enemey horizontally according to the `spacing` value.
         //`xOffset` determines the point from the left of the screen
