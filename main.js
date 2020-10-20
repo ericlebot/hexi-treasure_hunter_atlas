@@ -1,4 +1,11 @@
-let assets = ["sounds/chimes.wav"];
+let assets = [
+    "sounds/chimes.wav",
+    "images/explorer.png",
+    "images/dungeon.png",
+    "images/blob.png",
+    "images/treasure.png",
+    "images/door.png"
+];
 
 let game = hexi(512, 512, setup, assets, load);
 
@@ -11,7 +18,14 @@ let dungeon, player, treasure, enemies, chimes, exit,
 function play () {
 
     game.move(player);
-    game.contain(player, game.stage);
+    game.contain(
+        player,
+        {
+            x: 32, y: 16,
+            width: game.canvas.width - 32,
+            height: game.canvas.height - 32
+        }
+    );
 
     //Set `playerHit` to `false` before checking for a collision
     let playerHit = false;
@@ -23,7 +37,14 @@ function play () {
         game.move(enemy);
 
         //Check the enemy's screen boundaries
-        let enemyHitsEdges = game.contain(enemy, game.stage);
+        let enemyHitsEdges = game.contain(
+            enemy,
+            {
+                x: 32, y: 16,
+                width: game.canvas.width - 32,
+                height: game.canvas.height - 32
+            }
+        );
 
         //If the enemy hits the top or bottom of the stage, reverse
         //its direction
@@ -66,8 +87,8 @@ function play () {
     if (game.hitTestRectangle(player, treasure)) {
 
         //If the treasure is touching the player, center it over the player
-        treasure.x = player.x + 8;
-        treasure.y = player.y + 8;
+        treasure.x = player.x - 3;
+        treasure.y = player.y + 16;
 
         if(!treasure.pickedUp) {
 
@@ -114,21 +135,24 @@ function setup () {
     //Create the `gameScene` group
     gameScene = game.group();
 
+    // Create the dungeon background
+    dungeon = game.sprite("images/dungeon.png");
+    gameScene.addChild(dungeon);
+
     //Create the `exit` door sprite
-    exit = game.rectangle(48, 48, "green");
-    exit.x = 8;
-    exit.y = 8;
+    exit = game.sprite("images/door.png");
+    exit.x = 32;
     gameScene.addChild(exit);
 
     //Create the `player` sprite
-    player = game.rectangle(32, 32, "blue");
+    player = game.sprite("images/explorer.png");
     player.x = 68;
     player.y = game.canvas.height / 2 - player.halfHeight;
     gameScene.addChild(player);
 
     //Create the `treasure` sprite
-    treasure = game.rectangle(16, 16, "gold");
-    game.stage.putCenter(treasure, 220, 0);
+    treasure = game.sprite("images/treasure.png");
+    game.stage.putCenter(treasure, 200, 0);
     treasure.pickedUp = false;
     gameScene.addChild(treasure);
 
@@ -145,7 +169,7 @@ function setup () {
     for (let i = 0; i < numberOfEnemies; i++) {
 
         //Each enemy is a red rectangle
-        let enemy = game.rectangle(32, 32, "red");
+        let enemy = game.sprite("images/blob.png");
 
         //Space each enemey horizontally according to the `spacing` value.
         //`xOffset` determines the point from the left of the screen
@@ -186,8 +210,8 @@ function setup () {
     healthBar.inner = innerBar;
 
     //Position the health bar
-    healthBar.x = game.canvas.width - 148;
-    healthBar.y = 16;
+    healthBar.x = game.canvas.width - 160;
+    healthBar.y = 8;
 
     //Add the health bar to the `gameScene`
     gameScene.addChild(healthBar);
@@ -222,50 +246,20 @@ function reset ()  {
     player.x = 68;
     player.y = game.canvas.height / 2 - player.halfHeight;
 
-    game.stage.putCenter(treasure, 220, 0);
+    game.stage.putCenter(treasure, 200, 0);
     treasure.pickedUp = false;
 
-    game.remove(enemies);
+    let direction = 1;
 
-    //Make the enemies
-    let numberOfEnemies = 6,
-        spacing = 48,
-        xOffset = 150,
-        direction = 1;
+    enemies.forEach( enemy => {
 
-    //Make as many enemies as there are `numberOfEnemies`
-    for (let i = 0; i < numberOfEnemies; i++) {
+        enemy.y = game.randomInt(0, game.canvas.height - enemy.height);
 
-        //Each enemy is a red rectangle
-        let enemy = game.rectangle(32, 32, "red");
-
-        //Space each enemey horizontally according to the `spacing` value.
-        //`xOffset` determines the point from the left of the screen
-        //at which the first enemy should be added.
-        let x = spacing * i + xOffset;
-
-        //Give the enemy a random y position
-        let y = game.randomInt(0, game.canvas.height - enemy.height);
-
-        //Set the enemy's direction
-        enemy.x = x;
-        enemy.y = y;
-
-        //Set the enemy's vertical velocity. `direction` will be either `1` or
-        //`-1`. `1` means the enemy will move down and `-1` means the enemy will
-        //move up. Multiplying `direction` by `speed` determines the enemy's
-        //vertical direction
         enemy.vy = game.randomInt(1, 5) * direction;
 
-        //Reverse the direction for the next enemy
         direction *= -1;
 
-        //Push the enemy into the `enemies` array
-        enemies.push(enemy);
-
-        //Add the enemy to the `gameScene`
-        gameScene.addChild(enemy);
-    }
+    });
 
     healthBar.inner.width = healthBar.width;
 
