@@ -1,1 +1,1 @@
-# hexi-treasure_hunter_atlas
+# hexi-treasure_hunter_sprite
